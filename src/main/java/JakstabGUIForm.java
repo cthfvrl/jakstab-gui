@@ -40,13 +40,9 @@ public class JakstabGUIForm extends JFrame {
     private JPanel graphZoomPanel;
     private JButton zoomInButton;
     private JButton zoomOutButton;
+    private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
-
-    private Image graphImage = null;
-    private final double zoomFactor = 0.2;
-    private double graphWidthFactor = 1;
-    private double graphHeightFactor = 1;
 
     public JakstabGUIForm() {
         // This uses the form designer form
@@ -55,6 +51,8 @@ public class JakstabGUIForm extends JFrame {
         setTitle("Jakstab GUI");
         setSize(500, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        graphImagePanel = new ImagePanel();
 
         chooseFileButton.addActionListener(new ActionListener() {
             @Override
@@ -116,13 +114,8 @@ public class JakstabGUIForm extends JFrame {
                     try {
                         String graphFilePath = graphFileInput.getText();
                         Graphviz g = Graphviz.fromFile(new File(graphFilePath));
-                        graphImage = g.render(Format.PNG).toImage();
-                        graphWidthFactor = 1;
-                        graphHeightFactor = 1;
-                        graphImageLabel.setIcon(new ImageIcon(graphImage));
-                        //BufferedImage image = g.render(Format.PNG).toImage();
-                        //graphImageLabel.setIcon(new ImageIcon(image.getScaledInstance(graphDrawPanel.getWidth(), graphDrawPanel.getHeight(), Image.SCALE_SMOOTH)));
-                        //g.render(Format.PNG).toFile(new File(graphFilePath + ".png"));
+                        graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage());
+                        graphScrollPane.setViewportView(graphImagePanel);
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
@@ -133,32 +126,14 @@ public class JakstabGUIForm extends JFrame {
         zoomInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (graphImage == null) return;
-
-                graphWidthFactor += zoomFactor;
-                graphHeightFactor += zoomFactor;
-                int width = (int) (graphImage.getWidth(null) * graphWidthFactor);
-                int height = (int) (graphImage.getHeight(null) * graphHeightFactor);
-                graphImageLabel.setIcon(new ImageIcon(graphImage.getScaledInstance(width, height, Image.SCALE_SMOOTH)));
+                graphImagePanel.zoomIn();
             }
         });
 
         zoomOutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (graphImage == null || graphWidthFactor < zoomFactor || graphHeightFactor < zoomFactor)
-                    return;
-
-                graphWidthFactor -= zoomFactor;
-                graphHeightFactor -= zoomFactor;
-                int width = (int) (graphImage.getWidth(null) * graphWidthFactor);
-                int height = (int) (graphImage.getHeight(null) * graphHeightFactor);
-                if (width != 0 && height != 0)
-                    graphImageLabel.setIcon(new ImageIcon(graphImage.getScaledInstance(width, height, Image.SCALE_SMOOTH)));
-                else{
-                    graphWidthFactor += zoomFactor;
-                    graphHeightFactor += zoomFactor;
-                }
+                graphImagePanel.zoomOut();
             }
         });
     }
