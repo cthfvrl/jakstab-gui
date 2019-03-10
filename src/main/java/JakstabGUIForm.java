@@ -1,19 +1,16 @@
 import javax.swing.*;
-import javax.swing.text.AttributeSet;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.awt.image.BufferedImage;
+import java.io.*;
 
-import guru.nidi.graphviz.*;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import guru.nidi.graphviz.model.Graph;
 
 public class JakstabGUIForm extends JFrame {
     private JPanel optionsPanel;
@@ -31,15 +28,25 @@ public class JakstabGUIForm extends JFrame {
     private JRadioButton graphmlRadioButton;
     private JButton stopButton;
     private JTabbedPane outputTabbedPane;
-    private JPanel graphDrawPanel;
     private JButton graphButton;
     private JPanel graphSourcePanel;
     private JTextField graphFileInput;
     private JLabel graphFileInputLabel;
     private JButton chooseGraphFileButton;
     private JPanel graphTypePanel;
+    private JLabel graphImageLabel;
+    private JScrollPane graphScrollPane;
+    private JPanel graphPane;
+    private JPanel graphZoomPanel;
+    private JButton zoomInButton;
+    private JButton zoomOutButton;
 
     private Process currentProcess = null;
+
+    private Image graphImage = null;
+    private final double zoomFactor = 0.2;
+    private double graphWidthFactor = 1;
+    private double graphHeightFactor = 1;
 
     public JakstabGUIForm() {
         // This uses the form designer form
@@ -52,14 +59,19 @@ public class JakstabGUIForm extends JFrame {
         chooseFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fileChoose(sourceFileInput);
+                fileChoose(sourceFileInput, null);
             }
         });
 
         chooseGraphFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fileChoose(graphFileInput);
+                if (graphmlRadioButton.isSelected())
+                    fileChoose(graphFileInput, new FileNameExtensionFilter("graphml", "graphml"));
+                else if (graphvizRadioButton.isSelected())
+                    fileChoose(graphFileInput, new FileNameExtensionFilter("dot", "dot"));
+                else
+                    fileChoose(graphFileInput, null);
             }
         });
 
@@ -69,6 +81,8 @@ public class JakstabGUIForm extends JFrame {
                 if (sourceFileInput.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(jakstabRootPanel, "Source path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
+                    if (graphmlRadioButton.isSelected())
+                        JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet, generating .dot instead...", "Warning", JOptionPane.WARNING_MESSAGE);
                     ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", "jakstab", "-m", sourceFileInput.getText());
                     processBuilder.redirectErrorStream(true);
                     try {
@@ -96,11 +110,19 @@ public class JakstabGUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (graphFileInput.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(jakstabRootPanel, "Graph path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (graphmlRadioButton.isSelected()) {
+                    JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
                         String graphFilePath = graphFileInput.getText();
                         Graphviz g = Graphviz.fromFile(new File(graphFilePath));
-                        g.render(Format.PNG).toFile(new File(graphFilePath + ".png"));
+                        graphImage = g.render(Format.PNG).toImage();
+                        graphWidthFactor = 1;
+                        graphHeightFactor = 1;
+                        graphImageLabel.setIcon(new ImageIcon(graphImage));
+                        //BufferedImage image = g.render(Format.PNG).toImage();
+                        //graphImageLabel.setIcon(new ImageIcon(image.getScaledInstance(graphDrawPanel.getWidth(), graphDrawPanel.getHeight(), Image.SCALE_SMOOTH)));
+                        //g.render(Format.PNG).toFile(new File(graphFilePath + ".png"));
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
@@ -108,11 +130,45 @@ public class JakstabGUIForm extends JFrame {
             }
         });
 
+        zoomInButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (graphImage == null) return;
+
+                graphWidthFactor += zoomFactor;
+                graphHeightFactor += zoomFactor;
+                int width = (int) (graphImage.getWidth(null) * graphWidthFactor);
+                int height = (int) (graphImage.getHeight(null) * graphHeightFactor);
+                graphImageLabel.setIcon(new ImageIcon(graphImage.getScaledInstance(width, height, Image.SCALE_SMOOTH)));
+            }
+        });
+
+        zoomOutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (graphImage == null || graphWidthFactor < zoomFactor || graphHeightFactor < zoomFactor)
+                    return;
+
+                graphWidthFactor -= zoomFactor;
+                graphHeightFactor -= zoomFactor;
+                int width = (int) (graphImage.getWidth(null) * graphWidthFactor);
+                int height = (int) (graphImage.getHeight(null) * graphHeightFactor);
+                if (width != 0 && height != 0)
+                    graphImageLabel.setIcon(new ImageIcon(graphImage.getScaledInstance(width, height, Image.SCALE_SMOOTH)));
+                else{
+                    graphWidthFactor += zoomFactor;
+                    graphHeightFactor += zoomFactor;
+                }
+            }
+        });
     }
 
-    private static void fileChoose(JTextField textField) {
+    private static void fileChoose(JTextField textField, javax.swing.filechooser.FileFilter fileFilter) {
         JFileChooser fileopen = new JFileChooser();
-        int ret = fileopen.showDialog(null, "Choose source");
+        fileopen.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if (fileFilter != null)
+            fileopen.setFileFilter(fileFilter);
+        int ret = fileopen.showDialog(null, "Choose");
         if (ret == JFileChooser.APPROVE_OPTION) {
             File file = fileopen.getSelectedFile();
             textField.setText(file.getAbsolutePath());
