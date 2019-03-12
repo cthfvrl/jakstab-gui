@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+// TODO: repaint? (Linux)
 public class ImagePanel extends JPanel {
     private final BufferedImage image;
     private Image imageToShow;

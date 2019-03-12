@@ -34,7 +34,6 @@ public class JakstabGUIForm extends JFrame {
     private JLabel graphFileInputLabel;
     private JButton chooseGraphFileButton;
     private JPanel graphTypePanel;
-    private JLabel graphImageLabel;
     private JScrollPane graphScrollPane;
     private JPanel graphPane;
     private JPanel graphZoomPanel;
@@ -44,6 +43,7 @@ public class JakstabGUIForm extends JFrame {
 
     private Process currentProcess = null;
 
+    // TODO: system scaling
     public JakstabGUIForm() {
         // This uses the form designer form
         add(jakstabRootPanel);
@@ -52,8 +52,11 @@ public class JakstabGUIForm extends JFrame {
         setSize(500, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        graphScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        graphScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+        
         graphImagePanel = new ImagePanel();
-
+        
         chooseFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
