@@ -3,12 +3,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyledDocument;
-import java.awt.*;
+import javax.swing.text.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.*;
 
 import guru.nidi.graphviz.engine.Format;
@@ -42,6 +39,11 @@ public class JakstabGUIForm extends JFrame {
     private JButton zoomInButton;
     private JButton zoomOutButton;
     private JSlider zoomSlider;
+    private JPanel jakstabPanel;
+    private JPanel jakstabSourcePanel;
+    private JTextField jakstabFileInput;
+    private JLabel jakstabFileInputLabel;
+    private JButton chooseJakstabFileButton;
     private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
@@ -63,7 +65,14 @@ public class JakstabGUIForm extends JFrame {
         chooseFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fileChoose(sourceFileInput, null);
+                fileChoose(sourceFileInput, null, true);
+            }
+        });
+
+        chooseJakstabFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileChoose(jakstabFileInput, null, false);
             }
         });
 
@@ -71,23 +80,32 @@ public class JakstabGUIForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (graphmlRadioButton.isSelected())
-                    fileChoose(graphFileInput, new FileNameExtensionFilter("graphml", "graphml"));
+                    fileChoose(graphFileInput, new FileNameExtensionFilter("graphml", "graphml"), true);
                 else if (graphvizRadioButton.isSelected())
-                    fileChoose(graphFileInput, new FileNameExtensionFilter("dot", "dot"));
+                    fileChoose(graphFileInput, new FileNameExtensionFilter("dot", "dot"), true);
                 else
-                    fileChoose(graphFileInput, null);
+                    fileChoose(graphFileInput, null, true);
             }
         });
 
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (sourceFileInput.getText().isEmpty()) {
+                if (jakstabFileInput.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(jakstabRootPanel, "Jakstab executable path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (sourceFileInput.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(jakstabRootPanel, "Source path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     if (graphmlRadioButton.isSelected())
                         JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet, generating .dot instead...", "Warning", JOptionPane.WARNING_MESSAGE);
-                    ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", "jakstab", "-m", sourceFileInput.getText());
+                    //ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", "jakstab", "-m", sourceFileInput.getText());
+                    String command = jakstabFileInput.getText() + File.separator + "jakstab";
+                    
+                    String OS = System.getProperty("os.name").toLowerCase();
+                    if (OS.contains("win"))
+                        command = command + ".bat";
+                    
+                    ProcessBuilder processBuilder = new ProcessBuilder(command, "-m", sourceFileInput.getText());
                     processBuilder.redirectErrorStream(true);
                     try {
                         final Process process = processBuilder.start();
@@ -181,9 +199,15 @@ public class JakstabGUIForm extends JFrame {
         slider.setValue(value);
     }
 
-    private static void fileChoose(JTextField textField, javax.swing.filechooser.FileFilter fileFilter) {
+    private static void fileChoose(JTextField textField, javax.swing.filechooser.FileFilter fileFilter, boolean filesOnly) {
         JFileChooser fileopen = new JFileChooser();
-        fileopen.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileopen.setCurrentDirectory(new File("."));
+
+        if (filesOnly)
+            fileopen.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        else
+            fileopen.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
         if (fileFilter != null)
             fileopen.setFileFilter(fileFilter);
         int ret = fileopen.showDialog(null, "Choose");
@@ -199,15 +223,13 @@ public class JakstabGUIForm extends JFrame {
                 BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line = null;
                 try {
-                    StyledDocument doc = textPane.getStyledDocument();
-                    SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+                    Document doc = textPane.getDocument();
                     while ((line = input.readLine()) != null) {
                         try {
-                            doc.insertString(doc.getLength(), line + System.lineSeparator(), attributeSet);
+                            doc.insertString(doc.getLength(), line + System.lineSeparator(), null);
                         } catch (BadLocationException e) {
                             e.printStackTrace();
                         }
-                        //System.out.println(line);
                     }
                     // Destroy, as there's nothing else to read
                     processKill(process);
