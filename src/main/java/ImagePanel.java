@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -6,6 +7,7 @@ import java.awt.image.BufferedImage;
 public class ImagePanel extends JPanel {
     private final BufferedImage image;
     private Image imageToShow;
+    private JSlider slider;
 
     private final double zoomFactor = 0.2;
     private double factor;
@@ -16,17 +18,12 @@ public class ImagePanel extends JPanel {
         factor = 1;
     }
 
-    public ImagePanel(Image img) {
+    public ImagePanel(Image img, JSlider slider) {
         image = imageCopy(img);
         imageToShow = imageCopy(img);
         setSize(img);
         factor = 1;
-    }
-
-    public double getFactor() {
-        if (image == null)
-            return -1.0;
-        return factor;
+        slider.setValue((slider.getMaximum() - slider.getMinimum()) / 2);
     }
 
     private BufferedImage imageCopy(Image img) {
@@ -41,43 +38,76 @@ public class ImagePanel extends JPanel {
         g.drawImage(imageToShow, 0, 0, null);
     }
 
-    public double zoomIn() {
+    public boolean zoomIn() {
         if (image == null)
-            return -1.0;
+            return false;
 
+        double oldFactor = factor;
         factor += zoomFactor;
+
         int width = (int) (image.getWidth(null) * factor);
         int height = (int) (image.getHeight(null) * factor);
         imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         setSize(imageToShow);
-        return factor;
+
+        zoomRecalc(oldFactor);
+
+        return true;
     }
 
-    public double zoomOut() {
-        if (image == null)
-            return -1.0;
+    public boolean zoomOut() {
+        if (image == null || factor <= zoomFactor)
+            return false;
 
-        if(factor <= zoomFactor)
-            return factor;
-        
         int width = (int) (image.getWidth(null) * (factor - zoomFactor));
         int height = (int) (image.getHeight(null) * (factor - zoomFactor));
         if (width != 0 && height != 0) {
             imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             setSize(imageToShow);
+
+            double oldFactor = factor;
             factor -= zoomFactor;
+            zoomRecalc(oldFactor);
+
+            return true;
         }
-        return factor;
+        return false;
     }
 
-    public void zoom(double zoomFactor) {
+    // TODO: logarithmic slider
+    public boolean zoom(ChangeEvent e) {
+        slider = (JSlider) e.getSource();
+
+        int value = slider.getValue();
+        int max = slider.getMaximum();
+        int min = slider.getMinimum();
+
+        return zoom((double) value / (max - min) * 2.0);
+    }
+
+    public boolean zoom(double zoomFactor) {
         int width = (int) (image.getWidth(null) * zoomFactor);
         int height = (int) (image.getHeight(null) * zoomFactor);
         if (width != 0 && height != 0) {
             imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             setSize(imageToShow);
             factor = zoomFactor;
+            return true;
         }
+        return false;
+    }
+
+    private void zoomRecalc(double oldFactor) {
+        double diff = (factor - oldFactor) / 2.0;
+        if (diff == 0.0) return;
+
+        int value = slider.getValue();
+        int max = slider.getMaximum();
+        int min = slider.getMinimum();
+
+        value = value + (int) (diff * (max - min));
+
+        slider.setValue(value);
     }
 
     private void setSize(Image img) {

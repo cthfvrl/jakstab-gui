@@ -100,11 +100,11 @@ public class JakstabGUIForm extends JFrame {
                         JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet, generating .dot instead...", "Warning", JOptionPane.WARNING_MESSAGE);
                     //ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", "jakstab", "-m", sourceFileInput.getText());
                     String command = jakstabFileInput.getText() + File.separator + "jakstab";
-                    
+
                     String OS = System.getProperty("os.name").toLowerCase();
                     if (OS.contains("win"))
                         command = command + ".bat";
-                    
+
                     ProcessBuilder processBuilder = new ProcessBuilder(command, "-m", sourceFileInput.getText());
                     processBuilder.redirectErrorStream(true);
                     try {
@@ -138,7 +138,7 @@ public class JakstabGUIForm extends JFrame {
                     try {
                         String graphFilePath = graphFileInput.getText();
                         Graphviz g = Graphviz.fromFile(new File(graphFilePath));
-                        graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage());
+                        graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider);
                         graphScrollPane.setViewportView(graphImagePanel);
                     } catch (IOException e1) {
                         e1.printStackTrace();
@@ -150,53 +150,26 @@ public class JakstabGUIForm extends JFrame {
         zoomInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                double oldFactor = graphImagePanel.getFactor();
-                if (oldFactor >= 0) {
-                    double factor = graphImagePanel.zoomIn();
+                if (graphImagePanel.zoomIn())
                     graphScrollPane.repaint();
-                    zoomRecalc(zoomSlider, oldFactor, factor);
-                }
             }
         });
 
         zoomOutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                double oldFactor = graphImagePanel.getFactor();
-                if (oldFactor >= 0) {
-                    double factor = graphImagePanel.zoomOut();
+                if (graphImagePanel.zoomOut())
                     graphScrollPane.repaint();
-                    zoomRecalc(zoomSlider, oldFactor, factor);
-                }
             }
         });
 
-        // TODO: logarithmic slider
         zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                JSlider slider = (JSlider) e.getSource();
-
-                int value = slider.getValue();
-                int max = slider.getMaximum();
-                int min = slider.getMinimum();
-
-                graphImagePanel.zoom((double) value / (max - min) * 2.0);
+                if (graphImagePanel.zoom(e))
+                    graphScrollPane.repaint();
             }
         });
-    }
-
-    private static void zoomRecalc(JSlider slider, double oldWidth, double width) {
-        double diff = (width - oldWidth) / 2.0;
-        if (diff == 0.0) return;
-
-        int value = slider.getValue();
-        int max = slider.getMaximum();
-        int min = slider.getMinimum();
-
-        value = value + (int) (diff * (max - min));
-
-        slider.setValue(value);
     }
 
     private static void fileChoose(JTextField textField, javax.swing.filechooser.FileFilter fileFilter, boolean filesOnly) {
