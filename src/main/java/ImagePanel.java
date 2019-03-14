@@ -8,22 +8,25 @@ public class ImagePanel extends JPanel {
     private Image imageToShow;
 
     private final double zoomFactor = 0.2;
-    private double widthFactor;
-    private double heightFactor;
+    private double factor;
 
     public ImagePanel() {
         image = null;
         imageToShow = null;
-        widthFactor = 1;
-        heightFactor = 1;
+        factor = 1;
     }
 
     public ImagePanel(Image img) {
         image = imageCopy(img);
         imageToShow = imageCopy(img);
         setSize(img);
-        widthFactor = 1;
-        heightFactor = 1;
+        factor = 1;
+    }
+
+    public double getFactor() {
+        if (image == null)
+            return -1.0;
+        return factor;
     }
 
     private BufferedImage imageCopy(Image img) {
@@ -38,28 +41,42 @@ public class ImagePanel extends JPanel {
         g.drawImage(imageToShow, 0, 0, null);
     }
 
-    public void zoomIn() {
-        if (image == null) return;
+    public double zoomIn() {
+        if (image == null)
+            return -1.0;
 
-        widthFactor += zoomFactor;
-        heightFactor += zoomFactor;
-        int width = (int) (image.getWidth(null) * widthFactor);
-        int height = (int) (image.getHeight(null) * heightFactor);
+        factor += zoomFactor;
+        int width = (int) (image.getWidth(null) * factor);
+        int height = (int) (image.getHeight(null) * factor);
         imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         setSize(imageToShow);
+        return factor;
     }
 
-    public void zoomOut() {
+    public double zoomOut() {
         if (image == null)
-            return;
+            return -1.0;
 
-        int width = (int) (image.getWidth(null) * (widthFactor - zoomFactor));
-        int height = (int) (image.getHeight(null) * (heightFactor - zoomFactor));
+        if(factor <= zoomFactor)
+            return factor;
+        
+        int width = (int) (image.getWidth(null) * (factor - zoomFactor));
+        int height = (int) (image.getHeight(null) * (factor - zoomFactor));
         if (width != 0 && height != 0) {
             imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             setSize(imageToShow);
-            widthFactor -= zoomFactor;
-            heightFactor -= zoomFactor;
+            factor -= zoomFactor;
+        }
+        return factor;
+    }
+
+    public void zoom(double zoomFactor) {
+        int width = (int) (image.getWidth(null) * zoomFactor);
+        int height = (int) (image.getHeight(null) * zoomFactor);
+        if (width != 0 && height != 0) {
+            imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            setSize(imageToShow);
+            factor = zoomFactor;
         }
     }
 

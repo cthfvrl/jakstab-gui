@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -39,6 +41,7 @@ public class JakstabGUIForm extends JFrame {
     private JPanel graphZoomPanel;
     private JButton zoomInButton;
     private JButton zoomOutButton;
+    private JSlider zoomSlider;
     private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
@@ -54,9 +57,9 @@ public class JakstabGUIForm extends JFrame {
 
         graphScrollPane.getVerticalScrollBar().setUnitIncrement(16);
         graphScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
-        
+
         graphImagePanel = new ImagePanel();
-        
+
         chooseFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -129,16 +132,53 @@ public class JakstabGUIForm extends JFrame {
         zoomInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                graphImagePanel.zoomIn();
+                double oldFactor = graphImagePanel.getFactor();
+                if (oldFactor >= 0) {
+                    double factor = graphImagePanel.zoomIn();
+                    graphScrollPane.repaint();
+                    zoomRecalc(zoomSlider, oldFactor, factor);
+                }
             }
         });
 
         zoomOutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                graphImagePanel.zoomOut();
+                double oldFactor = graphImagePanel.getFactor();
+                if (oldFactor >= 0) {
+                    double factor = graphImagePanel.zoomOut();
+                    graphScrollPane.repaint();
+                    zoomRecalc(zoomSlider, oldFactor, factor);
+                }
             }
         });
+
+        // TODO: logarithmic slider
+        zoomSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSlider slider = (JSlider) e.getSource();
+
+                int value = slider.getValue();
+                int max = slider.getMaximum();
+                int min = slider.getMinimum();
+
+                graphImagePanel.zoom((double) value / (max - min) * 2.0);
+            }
+        });
+    }
+
+    private static void zoomRecalc(JSlider slider, double oldWidth, double width) {
+        double diff = (width - oldWidth) / 2.0;
+        if (diff == 0.0) return;
+
+        int value = slider.getValue();
+        int max = slider.getMaximum();
+        int min = slider.getMinimum();
+
+        value = value + (int) (diff * (max - min));
+
+        slider.setValue(value);
     }
 
     private static void fileChoose(JTextField textField, javax.swing.filechooser.FileFilter fileFilter) {
