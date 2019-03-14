@@ -7,23 +7,26 @@ import java.awt.image.BufferedImage;
 public class ImagePanel extends JPanel {
     private final BufferedImage image;
     private Image imageToShow;
+
     private JSlider slider;
+    private JLabel label;
 
     private final double zoomFactor = 0.2;
     private double factor;
 
-    public ImagePanel() {
+    ImagePanel() {
         image = null;
         imageToShow = null;
         factor = 1;
     }
 
-    public ImagePanel(Image img, JSlider slider) {
+    ImagePanel(Image img, JSlider slider, JLabel label) {
         image = imageCopy(img);
         imageToShow = imageCopy(img);
         setSize(img);
         factor = 1;
-        slider.setValue((slider.getMaximum() - slider.getMinimum()) / 2);
+        this.slider = slider;
+        this.label = label;
     }
 
     private BufferedImage imageCopy(Image img) {
@@ -38,24 +41,21 @@ public class ImagePanel extends JPanel {
         g.drawImage(imageToShow, 0, 0, null);
     }
 
-    public boolean zoomIn() {
+    boolean zoomIn() {
         if (image == null)
             return false;
 
-        double oldFactor = factor;
         factor += zoomFactor;
-
         int width = (int) (image.getWidth(null) * factor);
         int height = (int) (image.getHeight(null) * factor);
         imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
         setSize(imageToShow);
-
-        zoomRecalc(oldFactor);
+        zoomRecalc();
 
         return true;
     }
 
-    public boolean zoomOut() {
+    boolean zoomOut() {
         if (image == null || factor <= zoomFactor)
             return false;
 
@@ -64,50 +64,53 @@ public class ImagePanel extends JPanel {
         if (width != 0 && height != 0) {
             imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             setSize(imageToShow);
-
-            double oldFactor = factor;
             factor -= zoomFactor;
-            zoomRecalc(oldFactor);
+            zoomRecalc();
 
             return true;
         }
         return false;
     }
 
-    // TODO: logarithmic slider
-    public boolean zoom(ChangeEvent e) {
+    boolean zoom(ChangeEvent e) {
         slider = (JSlider) e.getSource();
-
         int value = slider.getValue();
-        int max = slider.getMaximum();
-        int min = slider.getMinimum();
 
-        return zoom((double) value / (max - min) * 2.0);
+        if (value <= 50)
+            return zoom((double) value / 50.0);
+        else
+            return zoom(((value - 50) / 10.0) + 1.0);
     }
 
-    public boolean zoom(double zoomFactor) {
+    private boolean zoom(double zoomFactor) {
         int width = (int) (image.getWidth(null) * zoomFactor);
         int height = (int) (image.getHeight(null) * zoomFactor);
         if (width != 0 && height != 0) {
             imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             setSize(imageToShow);
             factor = zoomFactor;
+            labelPercentRecalc();
+
             return true;
         }
         return false;
     }
 
-    private void zoomRecalc(double oldFactor) {
-        double diff = (factor - oldFactor) / 2.0;
-        if (diff == 0.0) return;
+    private void zoomRecalc() {
+        labelPercentRecalc();
+        if (factor <= 100.0)
+            slider.setValue((int) (factor * 50.0));
+        else
+            slider.setValue((int) ((factor - 1) * 10.0) + 50);
+    }
 
-        int value = slider.getValue();
-        int max = slider.getMaximum();
-        int min = slider.getMinimum();
-
-        value = value + (int) (diff * (max - min));
-
-        slider.setValue(value);
+    // TODO: prevent changing label size
+    private void labelPercentRecalc() {
+        int value = (int) (factor * 100.0);
+        if (value < 100)
+            label.setText(" " + value + "%");
+        else
+            label.setText(value + "%");
     }
 
     private void setSize(Image img) {

@@ -44,6 +44,7 @@ public class JakstabGUIForm extends JFrame {
     private JTextField jakstabFileInput;
     private JLabel jakstabFileInputLabel;
     private JButton chooseJakstabFileButton;
+    private JLabel zoomPercent;
     private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
@@ -138,7 +139,9 @@ public class JakstabGUIForm extends JFrame {
                     try {
                         String graphFilePath = graphFileInput.getText();
                         Graphviz g = Graphviz.fromFile(new File(graphFilePath));
-                        graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider);
+                        zoomSlider.setValue(50);
+                        zoomPercent.setText("100%");
+                        graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider, zoomPercent);
                         graphScrollPane.setViewportView(graphImagePanel);
                     } catch (IOException e1) {
                         e1.printStackTrace();
