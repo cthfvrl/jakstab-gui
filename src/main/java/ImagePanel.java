@@ -11,7 +11,7 @@ public class ImagePanel extends JPanel {
     private JSlider slider;
     private JLabel label;
 
-    private final double zoomFactor = 0.2;
+    private final double zoomDiffFactor = 0.2;
     private double factor;
 
     ImagePanel() {
@@ -45,28 +45,19 @@ public class ImagePanel extends JPanel {
         if (image == null)
             return false;
 
-        factor += zoomFactor;
-        int width = (int) (image.getWidth(null) * factor);
-        int height = (int) (image.getHeight(null) * factor);
-        imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        setSize(imageToShow);
-        zoomRecalc();
-
+        zoomRecalc(factor + zoomDiffFactor);
         return true;
     }
 
     boolean zoomOut() {
-        if (image == null || factor <= zoomFactor)
+        if (image == null || factor <= zoomDiffFactor)
             return false;
 
-        int width = (int) (image.getWidth(null) * (factor - zoomFactor));
-        int height = (int) (image.getHeight(null) * (factor - zoomFactor));
+        double zoomFactor = factor - zoomDiffFactor;
+        int width = (int) (image.getWidth(null) * (zoomFactor));
+        int height = (int) (image.getHeight(null) * (zoomFactor));
         if (width != 0 && height != 0) {
-            imageToShow = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-            setSize(imageToShow);
-            factor -= zoomFactor;
-            zoomRecalc();
-
+            zoomRecalc(zoomFactor);
             return true;
         }
         return false;
@@ -96,12 +87,11 @@ public class ImagePanel extends JPanel {
         return false;
     }
 
-    private void zoomRecalc() {
-        labelPercentRecalc();
-        if (factor <= 1.0)
-            slider.setValue((int) (factor * 50.0));
+    private void zoomRecalc(double zoomFactor) {
+        if (zoomFactor <= 1.0)
+            slider.setValue((int) (zoomFactor * 50.0));
         else
-            slider.setValue((int) ((factor - 1.0) * 10.0) + 50);
+            slider.setValue((int) ((zoomFactor - 1.0) * 10.0 + 50.0));
     }
 
     // TODO: prevent changing label size
