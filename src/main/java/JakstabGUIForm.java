@@ -12,39 +12,40 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 
 public class JakstabGUIForm extends JFrame {
-    private JPanel optionsPanel;
     private JTextField sourceFileInput;
-    private JLabel sourceFileInputLabel;
     private JPanel jakstabRootPanel;
     private JButton chooseFileButton;
     private JTextPane outputTextPane;
-    private JPanel sourcePanel;
-    private JPanel graphWriterPanel;
     private JButton runButton;
     private JScrollPane outputScrollPane;
-    private JPanel controlPanel;
     private JRadioButton graphvizRadioButton;
     private JRadioButton graphmlRadioButton;
     private JButton stopButton;
     private JTabbedPane outputTabbedPane;
     private JButton graphButton;
-    private JPanel graphSourcePanel;
     private JTextField graphFileInput;
-    private JLabel graphFileInputLabel;
     private JButton chooseGraphFileButton;
-    private JPanel graphTypePanel;
     private JScrollPane graphScrollPane;
     private JPanel graphPane;
     private JPanel graphZoomPanel;
     private JButton zoomInButton;
     private JButton zoomOutButton;
     private JSlider zoomSlider;
-    private JPanel jakstabPanel;
-    private JPanel jakstabSourcePanel;
     private JTextField jakstabFileInput;
-    private JLabel jakstabFileInputLabel;
     private JButton chooseJakstabFileButton;
     private JLabel zoomPercent;
+    private JPanel inputSourcePanel;
+    private JLabel sourceFileInputLabel;
+    private JPanel graphWriterPanel;
+    private JPanel graphSourcePanel;
+    private JLabel graphFileInputLabel;
+    private JPanel graphTypePanel;
+    private JPanel jakstabPanel;
+    private JPanel jakstabSourcePanel;
+    private JLabel jakstabFileInputLabel;
+    private JPanel inputPanel;
+    private JPanel controlPanel;
+    private JPanel optionsPanel;
     private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
@@ -55,7 +56,7 @@ public class JakstabGUIForm extends JFrame {
         add(jakstabRootPanel);
 
         setTitle("Jakstab GUI");
-        setSize(500, 500);
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         graphScrollPane.getVerticalScrollBar().setUnitIncrement(16);

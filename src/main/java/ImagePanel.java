@@ -98,10 +98,10 @@ public class ImagePanel extends JPanel {
 
     private void zoomRecalc() {
         labelPercentRecalc();
-        if (factor <= 100.0)
+        if (factor <= 1.0)
             slider.setValue((int) (factor * 50.0));
         else
-            slider.setValue((int) ((factor - 1) * 10.0) + 50);
+            slider.setValue((int) ((factor - 1.0) * 10.0) + 50);
     }
 
     // TODO: prevent changing label size
