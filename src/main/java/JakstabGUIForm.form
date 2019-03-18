@@ -226,7 +226,7 @@
               </grid>
             </children>
           </grid>
-          <grid id="de294" binding="graphWriterPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="de294" binding="graphWriterPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
@@ -278,7 +278,7 @@
               <grid id="1d19" binding="graphTypePanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none" title="Output format"/>
@@ -300,6 +300,42 @@
                     </constraints>
                     <properties>
                       <text value=".graphml"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="8f325" binding="graphRepresentationPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none" title="Autofill properties"/>
+                <children>
+                  <component id="3af27" class="javax.swing.JRadioButton" binding="cfgRadioButton">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="cfg"/>
+                      <toolTipText value="Assembly basic block graph"/>
+                    </properties>
+                  </component>
+                  <component id="c0211" class="javax.swing.JRadioButton" binding="cfaRadioButton">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="cfa"/>
+                      <toolTipText value="Control flow automaton"/>
+                    </properties>
+                  </component>
+                  <component id="807a8" class="javax.swing.JButton" binding="autofillButton">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <text value="Generate path based on input"/>
                     </properties>
                   </component>
                 </children>
@@ -365,6 +401,14 @@
     <group name="graphWriterButtonGroup">
       <member id="b8d1c"/>
       <member id="18b7d"/>
+    </group>
+    <group name="graphRepresentationButtonGroup">
+      <member id="3af27"/>
+      <member id="c0211"/>
+    </group>
+    <group name="graphOutputFormatButtonGroup">
+      <member id="b360f"/>
+      <member id="3a1cb"/>
     </group>
   </buttonGroups>
 </form>

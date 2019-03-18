@@ -7,7 +7,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4851b409-7d9d-4859-95d2-12977319f0cc" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/ImagePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ImagePanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/JakstabGUIForm.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/JakstabGUIForm.form" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/JakstabGUIForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/JakstabGUIForm.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -32,13 +34,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="2700" />
+          <entry key="java" value="3067" />
           <entry key="xml" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="2700" />
+          <entry key="JAVA" value="3067" />
           <entry key="XML" value="4" />
         </counts>
       </usages-collector>
@@ -60,16 +62,22 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/JakstabGUIForm.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2424">
-              <caret line="116" column="45" selection-start-line="116" selection-start-column="45" selection-end-line="116" selection-end-column="45" />
+            <state>
+              <caret line="117" column="24" lean-forward="true" selection-start-line="117" selection-start-column="24" selection-end-line="117" selection-end-column="24" />
+              <folding>
+                <element signature="e#2659#2660#0" expanded="true" />
+                <element signature="e#2730#2731#0" expanded="true" />
+                <element signature="e#2895#2896#0" expanded="true" />
+                <element signature="e#2968#2969#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/ImagePanel.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="264">
@@ -140,16 +148,17 @@
         <option value="$PROJECT_DIR$/src/guru/nidi/graphviz/engine/Options.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/Main.java" />
-        <option value="$PROJECT_DIR$/src/main/java/JakstabGUIForm.java" />
-        <option value="$PROJECT_DIR$/src/main/java/JakstabGUIForm.form" />
         <option value="$PROJECT_DIR$/src/main/java/ImagePanel.java" />
+        <option value="$PROJECT_DIR$/src/main/java/JakstabGUIForm.form" />
+        <option value="$PROJECT_DIR$/src/main/java/JakstabGUIForm.java" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-10" />
-    <option name="width" value="980" />
-    <option name="height" value="1040" />
+    <option name="y" value="-10" />
+    <option name="width" value="1384" />
+    <option name="height" value="745" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -196,7 +205,7 @@
     <property name="UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH" value="117" />
     <property name="UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH" value="341" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1552761160075" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../jakstab_git/jakstab" />
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -289,11 +298,11 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.328877" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49934897" weight="0.030390738" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49934897" visible="true" weight="0.030390738" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39942113" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info active="true" anchor="bottom" id="TODO" order="6" visible="true" weight="0.32850942" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32850942" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32850942" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32850942" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.50065106" side_tool="true" weight="0.3294423" />
@@ -428,13 +437,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/JakstabGUIForm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2424">
-          <caret line="116" column="45" selection-start-line="116" selection-start-column="45" selection-end-line="116" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
@@ -442,15 +444,28 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/JakstabGUIForm.form">
-      <provider selected="true" editor-type-id="ui-designer" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/ImagePanel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="264">
           <caret line="11" column="25" lean-forward="true" selection-start-line="11" selection-start-column="25" selection-end-line="11" selection-end-column="25" />
           <folding>
             <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/JakstabGUIForm.form">
+      <provider selected="true" editor-type-id="ui-designer" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/JakstabGUIForm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="117" column="24" lean-forward="true" selection-start-line="117" selection-start-column="24" selection-end-line="117" selection-end-column="24" />
+          <folding>
+            <element signature="e#2659#2660#0" expanded="true" />
+            <element signature="e#2730#2731#0" expanded="true" />
+            <element signature="e#2895#2896#0" expanded="true" />
+            <element signature="e#2968#2969#0" expanded="true" />
           </folding>
         </state>
       </provider>

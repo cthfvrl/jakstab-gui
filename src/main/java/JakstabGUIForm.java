@@ -46,6 +46,11 @@ public class JakstabGUIForm extends JFrame {
     private JPanel inputPanel;
     private JPanel controlPanel;
     private JPanel optionsPanel;
+    private JPanel graphRepresentationPanel;
+    private JRadioButton cfgRadioButton;
+    private JRadioButton cfaRadioButton;
+    private JButton autofillButton;
+    private JCheckBox autofillCheckBox;
     private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
@@ -63,6 +68,9 @@ public class JakstabGUIForm extends JFrame {
         graphScrollPane.getHorizontalScrollBar().setUnitIncrement(16);
 
         graphImagePanel = new ImagePanel();
+
+        cfgRadioButton.setSelected(true);
+        graphvizRadioButton.setSelected(true);
 
         chooseFileButton.addActionListener(new ActionListener() {
             @Override
@@ -90,6 +98,30 @@ public class JakstabGUIForm extends JFrame {
             }
         });
 
+        autofillButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String source = sourceFileInput.getText();
+                if (!source.isEmpty()) {
+                    // Remove extension if present
+                    if (source.contains(".")) {
+                        int dotIndex = source.lastIndexOf('.');
+                        if (dotIndex > 0)
+                            source = source.substring(0, dotIndex);
+                    }
+                    if (cfgRadioButton.isSelected())
+                        source += "_asmcfg";
+                    else
+                        source += "_cfa";
+                    if (graphvizRadioButton.isSelected())
+                        source += ".dot";
+                    else
+                        source += ".graphml";
+                    graphFileInput.setText(source);
+                }
+            }
+        });
+
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -100,9 +132,8 @@ public class JakstabGUIForm extends JFrame {
                 } else {
                     if (graphmlRadioButton.isSelected())
                         JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet, generating .dot instead...", "Warning", JOptionPane.WARNING_MESSAGE);
-                    //ProcessBuilder processBuilder = new ProcessBuilder("cmd", "/c", "jakstab", "-m", sourceFileInput.getText());
-                    String command = jakstabFileInput.getText() + File.separator + "jakstab";
 
+                    String command = jakstabFileInput.getText() + File.separator + "jakstab";
                     String OS = System.getProperty("os.name").toLowerCase();
                     if (OS.contains("win"))
                         command = command + ".bat";
