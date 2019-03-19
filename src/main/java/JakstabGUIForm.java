@@ -7,9 +7,13 @@ import javax.swing.text.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.ListIterator;
 
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import org.apache.commons.io.FileUtils;
 
 public class JakstabGUIForm extends JFrame {
     private JTextField sourceFileInput;
@@ -51,6 +55,8 @@ public class JakstabGUIForm extends JFrame {
     private JRadioButton cfaRadioButton;
     private JButton autofillButton;
     private JCheckBox exportToPngCheckBox;
+    private JScrollPane graphDescriptionScrollPane;
+    private JTextPane graphDescriptionTextPane;
     private JCheckBox autofillCheckBox;
     private ImagePanel graphImagePanel;
 
@@ -176,13 +182,22 @@ public class JakstabGUIForm extends JFrame {
                     graphGenerator = new Thread() {
                         public void run() {
                             try {
+                                boolean toPng = exportToPngCheckBox.isSelected();
                                 String graphFilePath = graphFileInput.getText();
-                                Graphviz g = Graphviz.fromFile(new File(graphFilePath));
-                                if (exportToPngCheckBox.isSelected()) {
+                                GraphFile graphFile = graphFileAmend(graphFilePath, "1");
+                                Graphviz g = Graphviz.fromFile(graphFile.getFile());
+                                if (toPng)
                                     g.render(Format.PNG).toFile(new File(graphFilePath + ".png"));
-                                } else {
+                                else {
+                                    String description = graphFile.getDescription();
+                                    if (description != null)
+                                        graphDescriptionTextPane.setText(description);
+                                    else
+                                        graphDescriptionTextPane.setText("No description...");
+
                                     zoomSlider.setValue(50);
                                     zoomPercent.setText("100%");
+
                                     graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider, zoomPercent);
                                     graphScrollPane.setViewportView(graphImagePanel);
                                 }
@@ -220,6 +235,72 @@ public class JakstabGUIForm extends JFrame {
                     graphScrollPane.repaint();
             }
         });
+    }
+
+    final class GraphFile {
+        private final File file;
+        private final String description;
+
+        GraphFile(File file, String description) {
+            this.file = file;
+            this.description = description;
+        }
+
+        File getFile() {
+            return file;
+        }
+
+        String getDescription() {
+            return description;
+        }
+    }
+
+    private GraphFile graphFileAmend(String filename, String padValue) throws IOException {
+        File file = new File(filename);
+        List<String> lines = FileUtils.readLines(file, Charset.defaultCharset());
+        String description = null;
+        for (ListIterator<String> iter = lines.listIterator(); iter.hasNext(); ) {
+            String line = iter.next();
+            if (line.startsWith("graph")) {
+                StringBuilder stringBuilder = new StringBuilder();
+                char[] buffer = line.toCharArray();
+                int lastIndex = 0;
+
+                // Extract description
+                int labelIndex = line.indexOf("label=");
+                if (labelIndex != -1) {
+                    stringBuilder.append(buffer, 0, labelIndex);
+                    lastIndex = labelIndex;
+                    labelIndex += 7; // skip "label=""
+                    int quoteIndex = line.indexOf("\"", labelIndex);
+                    if (quoteIndex != -1) {
+                        description = line.substring(labelIndex, quoteIndex);
+                        lastIndex = quoteIndex + 2; // skip ","
+                    }
+                }
+
+                // Change pad value
+                int padIndex = line.indexOf("pad=", lastIndex);
+                if (padIndex != -1) {
+                    padIndex += 4;
+                    stringBuilder.append(buffer, lastIndex, padIndex - lastIndex);
+                    lastIndex = padIndex;
+                    int bracketIndex = line.indexOf("]", padIndex);
+                    if (bracketIndex != -1) {
+                        stringBuilder.append(padValue);
+                        lastIndex = bracketIndex;
+                    }
+                }
+
+                // Write the rest of the line
+                stringBuilder.append(buffer, lastIndex, buffer.length - lastIndex);
+                iter.set(stringBuilder.toString());
+                break;
+            }
+        }
+        File tempFile = File.createTempFile("graph", ".dot");
+        FileUtils.writeLines(tempFile, lines, System.lineSeparator());
+        return new GraphFile(tempFile, description);
     }
 
     private static void fileChoose(JTextField textField, javax.swing.filechooser.FileFilter fileFilter, boolean filesOnly) {
