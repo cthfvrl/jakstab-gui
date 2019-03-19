@@ -50,10 +50,12 @@ public class JakstabGUIForm extends JFrame {
     private JRadioButton cfgRadioButton;
     private JRadioButton cfaRadioButton;
     private JButton autofillButton;
+    private JCheckBox exportToPngCheckBox;
     private JCheckBox autofillCheckBox;
     private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
+    private Thread graphGenerator = null;
 
     // TODO: system scaling
     public JakstabGUIForm() {
@@ -129,6 +131,8 @@ public class JakstabGUIForm extends JFrame {
                     JOptionPane.showMessageDialog(jakstabRootPanel, "Jakstab executable path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else if (sourceFileInput.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(jakstabRootPanel, "Source path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (currentProcess != null) {
+                    JOptionPane.showMessageDialog(jakstabRootPanel, "Another process is already running!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     if (graphmlRadioButton.isSelected())
                         JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet, generating .dot instead...", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -141,9 +145,8 @@ public class JakstabGUIForm extends JFrame {
                     ProcessBuilder processBuilder = new ProcessBuilder(command, "-m", sourceFileInput.getText());
                     processBuilder.redirectErrorStream(true);
                     try {
-                        final Process process = processBuilder.start();
-                        currentProcess = process;
-                        watch(process, outputTextPane);
+                        currentProcess = processBuilder.start();
+                        watch(currentProcess, outputTextPane);
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
@@ -167,17 +170,29 @@ public class JakstabGUIForm extends JFrame {
                     JOptionPane.showMessageDialog(jakstabRootPanel, "Graph path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else if (graphmlRadioButton.isSelected()) {
                     JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (graphGenerator != null && graphGenerator.isAlive()) {
+                    JOptionPane.showMessageDialog(jakstabRootPanel, "Another graph image is already being generated!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    try {
-                        String graphFilePath = graphFileInput.getText();
-                        Graphviz g = Graphviz.fromFile(new File(graphFilePath));
-                        zoomSlider.setValue(50);
-                        zoomPercent.setText("100%");
-                        graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider, zoomPercent);
-                        graphScrollPane.setViewportView(graphImagePanel);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+                    graphGenerator = new Thread() {
+                        public void run() {
+                            try {
+                                String graphFilePath = graphFileInput.getText();
+                                Graphviz g = Graphviz.fromFile(new File(graphFilePath));
+                                if (exportToPngCheckBox.isSelected()) {
+                                    g.render(Format.PNG).toFile(new File(graphFilePath + ".png"));
+                                } else {
+                                    zoomSlider.setValue(50);
+                                    zoomPercent.setText("100%");
+                                    graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider, zoomPercent);
+                                    graphScrollPane.setViewportView(graphImagePanel);
+                                }
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    };
+                    graphGenerator.setDaemon(true);
+                    graphGenerator.start();
                 }
             }
         });
