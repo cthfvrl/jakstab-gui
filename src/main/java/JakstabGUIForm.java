@@ -166,6 +166,7 @@ public class JakstabGUIForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (currentProcess != null && currentProcess.isAlive())
                     processKill(currentProcess);
+                currentProcess = null;
             }
         });
 
