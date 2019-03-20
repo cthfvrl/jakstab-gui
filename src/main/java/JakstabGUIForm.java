@@ -10,6 +10,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.prefs.Preferences;
 
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -62,6 +63,7 @@ public class JakstabGUIForm extends JFrame {
 
     private Process currentProcess = null;
     private Thread graphGenerator = null;
+    private Preferences userPreferences;
 
     // TODO: system scaling
     public JakstabGUIForm() {
@@ -80,6 +82,9 @@ public class JakstabGUIForm extends JFrame {
         cfgRadioButton.setSelected(true);
         graphvizRadioButton.setSelected(true);
 
+        userPreferences = Preferences.userRoot().node("jakstabgui");
+        setUserPreferences();
+
         chooseFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -91,6 +96,7 @@ public class JakstabGUIForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 fileChoose(jakstabFileInput, null, false);
+                putJakstabFolderPreference(jakstabFileInput.getText());
             }
         });
 
@@ -143,7 +149,9 @@ public class JakstabGUIForm extends JFrame {
                     if (graphmlRadioButton.isSelected())
                         JOptionPane.showMessageDialog(jakstabRootPanel, "GraphML file type is not supported yet, generating .dot instead...", "Warning", JOptionPane.WARNING_MESSAGE);
 
-                    String command = jakstabFileInput.getText() + File.separator + "jakstab";
+                    String jakstabFolder = jakstabFileInput.getText();
+                    putJakstabFolderPreference(jakstabFolder);
+                    String command = jakstabFolder + File.separator + "jakstab";
                     String OS = System.getProperty("os.name").toLowerCase();
                     if (OS.contains("win"))
                         command = command + ".bat";
@@ -236,6 +244,15 @@ public class JakstabGUIForm extends JFrame {
                     graphScrollPane.repaint();
             }
         });
+    }
+
+    private void setUserPreferences() {
+        String jakstabFolder = new String(userPreferences.getByteArray("jakstabFolder", "".getBytes()));
+        jakstabFileInput.setText(jakstabFolder);
+    }
+
+    private void putJakstabFolderPreference(String jakstabFolder) {
+        userPreferences.putByteArray("jakstabFolder", jakstabFolder.getBytes());
     }
 
     final class GraphFile {
