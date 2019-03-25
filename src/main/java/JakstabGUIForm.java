@@ -54,15 +54,25 @@ public class JakstabGUIForm extends JFrame {
     private JPanel graphRepresentationPanel;
     private JRadioButton cfgRadioButton;
     private JRadioButton cfaRadioButton;
-    private JButton autofillButton;
+    private JButton autofillGraphButton;
     private JCheckBox exportToPngCheckBox;
     private JScrollPane graphDescriptionScrollPane;
     private JTextPane graphDescriptionTextPane;
+    private JPanel disasmPanel;
+    private JPanel disasmSourcePanel;
+    private JTextField disasmFileInput;
+    private JLabel disasmFileInputLabel;
+    private JButton chosseDisasmFileButton;
+    private JButton autofillDisasmButton;
+    private JScrollPane disasmScrollPane;
+    private JTextPane disasmTextPane;
+    private JButton disassembleButton;
     private JCheckBox autofillCheckBox;
     private ImagePanel graphImagePanel;
 
     private Process currentProcess = null;
     private Thread graphGenerator = null;
+    private Thread disasmWriter = null;
     private Preferences userPreferences;
 
     // TODO: system scaling
@@ -100,6 +110,13 @@ public class JakstabGUIForm extends JFrame {
             }
         });
 
+        chosseDisasmFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileChoose(disasmFileInput, new FileNameExtensionFilter("asm", "asm"), true);
+            }
+        });
+
         chooseGraphFileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,17 +129,24 @@ public class JakstabGUIForm extends JFrame {
             }
         });
 
-        autofillButton.addActionListener(new ActionListener() {
+        autofillDisasmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String source = sourceFileInput.getText();
                 if (!source.isEmpty()) {
-                    // Remove extension if present
-                    if (source.contains(".")) {
-                        int dotIndex = source.lastIndexOf('.');
-                        if (dotIndex > 0)
-                            source = source.substring(0, dotIndex);
-                    }
+                    source = getBaseFilepath(source);
+                    source += "_jak.asm";
+                    disasmFileInput.setText(source);
+                }
+            }
+        });
+
+        autofillGraphButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String source = sourceFileInput.getText();
+                if (!source.isEmpty()) {
+                    source = getBaseFilepath(source);
                     if (cfgRadioButton.isSelected())
                         source += "_asmcfg";
                     else
@@ -175,6 +199,39 @@ public class JakstabGUIForm extends JFrame {
                 if (currentProcess != null && currentProcess.isAlive())
                     processKill(currentProcess);
                 currentProcess = null;
+            }
+        });
+
+        disassembleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (disasmFileInput.getText().isEmpty())
+                    JOptionPane.showMessageDialog(jakstabRootPanel, "Disassembly path is empty!", "Error", JOptionPane.ERROR_MESSAGE);
+                else if (disasmWriter != null && disasmWriter.isAlive())
+                    JOptionPane.showMessageDialog(jakstabRootPanel, "Another disassembly is already being written!", "Error", JOptionPane.ERROR_MESSAGE);
+                else {
+                    disasmWriter = new Thread() {
+                        public void run() {
+                            try {
+                                BufferedReader disasmReader = new BufferedReader(new FileReader(disasmFileInput.getText()));
+                                String line = null;
+                                Document doc = disasmTextPane.getDocument();
+                                while ((line = disasmReader.readLine()) != null) {
+                                    try {
+                                        doc.insertString(doc.getLength(), line + System.lineSeparator(), null);
+                                    } catch (BadLocationException e0) {
+                                        e0.printStackTrace();
+                                    }
+                                }
+                                disasmReader.close();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    };
+                    disasmWriter.setDaemon(true);
+                    disasmWriter.start();
+                }
             }
         });
 
@@ -244,6 +301,15 @@ public class JakstabGUIForm extends JFrame {
                     graphScrollPane.repaint();
             }
         });
+    }
+
+    private String getBaseFilepath(String source) {
+        if (source.contains(".")) {
+            int dotIndex = source.lastIndexOf('.');
+            if (dotIndex > 0)
+                source = source.substring(0, dotIndex);
+        }
+        return source;
     }
 
     private void setUserPreferences() {
