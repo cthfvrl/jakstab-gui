@@ -223,8 +223,11 @@ public class JakstabGUIForm extends JFrame {
                                         e0.printStackTrace();
                                     }
                                 }
+                                doc.insertString(doc.getLength(), System.lineSeparator() + System.lineSeparator(), null);
                                 disasmReader.close();
                             } catch (IOException e1) {
+                                e1.printStackTrace();
+                            } catch (BadLocationException e1) {
                                 e1.printStackTrace();
                             }
                         }
@@ -255,6 +258,9 @@ public class JakstabGUIForm extends JFrame {
                                 if (toPng)
                                     g.render(Format.PNG).toFile(new File(graphFilePath + ".png"));
                                 else {
+                                    graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider, zoomPercent);
+                                    graphScrollPane.setViewportView(graphImagePanel);
+
                                     String description = graphFile.getDescription();
                                     if (description != null)
                                         graphDescriptionTextPane.setText(description);
@@ -263,9 +269,6 @@ public class JakstabGUIForm extends JFrame {
 
                                     zoomSlider.setValue(50);
                                     zoomPercent.setText("100%");
-
-                                    graphImagePanel = new ImagePanel(g.render(Format.PNG).toImage(), zoomSlider, zoomPercent);
-                                    graphScrollPane.setViewportView(graphImagePanel);
                                 }
                             } catch (IOException e1) {
                                 e1.printStackTrace();
@@ -419,9 +422,12 @@ public class JakstabGUIForm extends JFrame {
                             e.printStackTrace();
                         }
                     }
+                    doc.insertString(doc.getLength(), System.lineSeparator() + System.lineSeparator(), null);
                     // Destroy, as there's nothing else to read
                     processKill(process);
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (BadLocationException e) {
                     e.printStackTrace();
                 }
             }
